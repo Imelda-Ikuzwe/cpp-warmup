@@ -37,6 +37,44 @@ struct Delivery {
 vector<double> morningWeights = {
     45.5, 80.0, 12.0, -3.0, 66.5, 20.0, 31.0, 95.0, 50.0, 18.5, 0.0, 72.0
 };
+int main(){
+double total=0;
+    for(int i=0;i<12;i++){
+    total=total+morningWeights[i];
+}
+cout<<"Total: "<<total<<endl;
+double valid=0;
+for(int a=0;a<12;a++){
+    if(morningWeights[a]>0 && morningWeights[a]<81){
+        valid=valid+1;
+    }
+}
+cout<<"Valid: "<<valid<< " of 12 "<<endl;
+double heaviest=morningWeights[0];
+int index=1;
+for(int z=0;z<12;z++){
+    if(morningWeights[z]>heaviest){
+        heaviest=morningWeights[z];
+        index=z+1;
+    }
+}
+cout<<"Heaviest: "<<heaviest<<" at position "<<index<<endl;
+
+double finale=0;
+double longest=0;
+for(int s=0;s<12;s++){
+    
+    if(morningWeights[s]>0 && morningWeights[s]<81){
+        longest=longest+1;
+    }
+    else if(longest>finale){
+        finale=longest;
+    }
+    }
+    cout<<"Longest valid run: "<<finale<<endl;
+
+}
+
 
 // Q2, Q3, Q4, Q7, Q8 — the day's logbook
 vector<Delivery> logbook = {
