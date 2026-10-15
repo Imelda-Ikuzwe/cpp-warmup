@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <map>
 using namespace std;
 
 /**
@@ -27,7 +28,14 @@ struct Delivery {
     char   grade;
 };
 
-
+int findFarmer(const vector<Delivery> &log, string name) {
+    for (size_t i = 0; i < log.size(); ++i) {
+        if (log[i].farmer == name) {
+            return i;
+        }
+    }
+    return -1;
+}
 /**
  * THE DATA
  * Do not change these. Every expected answer in the README comes from exactly this data.
@@ -176,74 +184,48 @@ if(longest > finale) {
     cout << "=== Q2 ===\n";
 
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <algorithm>
-using namespace std;
 
-int main(){
+double manyA = 0, manyB = 0, manyC = 0;
+double totalA = 0, totalB = 0, totalC = 0;
 
-    struct Delivery {
-    string farmer;
-    double kg;
-    char   grade;
-};
-    vector<Delivery> logbook = {
-    {"Keza",    45.5, 'A'},
-    {"Bonu",    80.0, 'B'},
-    {"Isanda",  20.0, 'A'},
-    {"Keza",    12.0, 'C'},
-    {"Onyinye", 66.5, 'B'},
-    {"Karimi",  31.0, 'A'},
-    {"Karimi",  31.0, 'A'},
-    {"Keza",    18.5, 'B'},
-    {"Bonu",    50.0, 'C'},
-    {"Isanda",  20.0, 'A'},
-    {"Onyinye", 72.0, 'A'}
-};
-double manyA=0;
-double manyB=0;
-double manyC=0;
-double totalA=0;
-double totalB=0;
-double totalC=0;
-
-for(int i=0;i<11;i++){
-    if(logbook[i].grade=='A'){
-        manyA=manyA+1;
-        totalA=totalA+logbook[1].kg;
-    }
-    else if(logbook[i].grade=='B'){
-        manyB=manyB+1;
-        totalB=totalB+logbook[1].kg;
-    }
-    else{
-         manyC=manyC+1;
-        totalC=totalC+logbook[1].kg;
+for (int i = 0; i < 11; i++) {
+    if (logbook[i].grade == 'A') {
+        manyA = manyA + 1;
+        totalA = totalA + logbook[i].kg;
+    } else if (logbook[i].grade == 'B') {
+        manyB = manyB + 1;
+        totalB = totalB + logbook[i].kg; 
+    } else if (logbook[i].grade == 'C') { 
+        manyC = manyC + 1;
+        totalC = totalC + logbook[i].kg; 
     }
 }
-double sum=totalA+totalB+totalC;
-double averageA=totalA/manyA;
-double averageB=totalB/manyB;
-double averageC=totalC/manyC;
 
-cout<<"Grade A: "<<manyA<<"deliveries "<< totalA<<"total "<<averageA<<"kg Average"<<endl;
-cout<<"Grade B: "<<manyA<<"deliveries "<< totalB<<"total "<<averageB<<"kg Average"<<endl;
-cout<<"Grade C: "<<manyA<<"deliveries "<< totalC<<"total "<<averageC<<"kg Average"<<endl;
-double best=averageA;
-if(averageB>best){
-    best=averageB;
+
+
+double averageA = (manyA > 0) ? totalA / manyA : 0;
+double averageB = (manyB > 0) ? totalB / manyB : 0;
+double averageC = (manyC > 0) ? totalC / manyC : 0;
+
+cout << "Grade A: " << manyA << " deliveries" <<","<< totalA<< " total" <<","<< averageA << "kg Average" << endl;
+cout << "Grade B: " << manyA << " deliveries" <<","<< totalB<< " total" <<","<< averageB << "kg Average" << endl;
+cout << "Grade C: " << manyC << " deliveries" <<","<< totalC<< " total" <<","<< averageC << "kg Average" << endl;
+
+
+double best = averageA;
+char bestGrade = 'A';
+
+if (averageB > best) {
+    best = averageB;
+    bestGrade = 'B';
 }
-if(averageC>best){
-    best=averageC;
+if (averageC > best) {
+    best = averageC;
+    bestGrade = 'C';
 }
-if(best==averageA){
-    cout<<"Grade"<<"A"<<endl;
-}
-else if(best==averageA){
-    cout<<"Grade"<<"A"<<endl;}
-}
+
+cout << "Best average: grade " << bestGrade << endl;
+
 
 
     cout << "\n";
@@ -257,9 +239,43 @@ else if(best==averageA){
     cout << "=== Q3 ===\n";
 
 
+  
 
 
 
+   cout << "findFarmer(Isanda) = " << findFarmer(logbook, "Isanda") << endl;
+    cout << "findFarmer(Mukamana) = " << findFarmer(logbook, "Mukamana") << endl;
+
+    
+    map<string, int> deliveryCounts;
+    map<string, double> totalWeights;
+
+    for (const auto &delivery : logbook) {
+        deliveryCounts[delivery.farmer]++;
+        totalWeights[delivery.farmer] += delivery.kg;
+    }
+
+    
+    string mostDeliveriesFarmer = "";
+    int maxDeliveries = 0;
+    for (const auto &pair : deliveryCounts) {
+        if (pair.second > maxDeliveries) {
+            maxDeliveries = pair.second;
+            mostDeliveriesFarmer = pair.first;
+        }
+    }
+
+    string mostKgFarmer = "";
+    double maxKg = 0.0;
+    for (const auto &pair : totalWeights) {
+        if (pair.second > maxKg) {
+            maxKg = pair.second;
+            mostKgFarmer = pair.first;
+        }
+    }
+
+    cout << "Most deliveries: " << mostDeliveriesFarmer << " (" << maxDeliveries << ")" << endl;
+    cout << "Most kg: " << mostKgFarmer << " (" << maxKg << " kg)" << endl;
     cout << "\n";
 
 
@@ -327,8 +343,8 @@ else if(best==averageA){
 
 
     return 0;
-}
 
+}
 
 // =====================================================================
 //  FUNCTIONS YOU WRITE
@@ -354,3 +370,11 @@ else if(best==averageA){
 // double payment(double kg, char grade) {
 //
 // }
+int findFarmer(const vector<Delivery> &log, string name) {
+    for (size_t i = 0; i < log.size(); ++i) {
+        if (log[i].farmer == name) {
+            return i;
+        }
+    }
+    return -1;
+}
