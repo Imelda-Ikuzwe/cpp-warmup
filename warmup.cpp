@@ -407,6 +407,44 @@ cout << "Best average: grade " << bestGrade << endl;
 
     cout << "=== Q6 ===\n";
 
+   
+       // =================================================================
+    //  Q6  ·  IGISORO: A FULL TURN          (see README)
+    //  Uses: board
+    // =================================================================
+
+
+    int currentPit = 6;
+    int totalStepsMoved = 0;
+
+    while (board[currentPit] > 0) {
+        int seedsInHand = board[currentPit];
+        board[currentPit] = 0; 
+
+        while (seedsInHand > 0) {
+            currentPit = currentPit + 1;
+            totalStepsMoved = totalStepsMoved + 1;
+
+            if (currentPit > 16) {
+                currentPit = 1;
+            }
+
+            board[currentPit] = board[currentPit] + 1;
+            seedsInHand = seedsInHand - 1;
+        }
+
+        if (board[currentPit] == 1) {
+            break;
+        }
+    }
+
+    int lapCount = totalStepsMoved / 16;
+
+    cout << "Final board: ";
+    printBoard(board);
+    cout << "Landed in pit " << currentPit << " after " << lapCount << " laps" << endl;
+
+    cout << "\n";
 
 
     
