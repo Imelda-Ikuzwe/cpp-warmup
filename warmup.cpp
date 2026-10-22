@@ -28,14 +28,6 @@ struct Delivery {
     char   grade;
 };
 
-int findFarmer(const vector<Delivery> &log, string name) {
-    for (size_t i = 0; i < log.size(); ++i) {
-        if (log[i].farmer == name) {
-            return i;
-        }
-    }
-    return -1;
-}
 /**
  * THE DATA
  * Do not change these. Every expected answer in the README comes from exactly this data.
@@ -92,6 +84,9 @@ void printBoard(const vector<int> &b) {
     for (int i = 1; i <= 16; i++) cout << b[i] << " ";
     cout << "\n";
 }
+
+int findFarmer(const vector<Delivery> &log, string name);
+double payment(double kg, char grade);
 
 
 int main() {
@@ -208,7 +203,7 @@ double averageB = (manyB > 0) ? totalB / manyB : 0;
 double averageC = (manyC > 0) ? totalC / manyC : 0;
 
 cout << "Grade A: " << manyA << " deliveries" <<","<< totalA<< " total" <<","<< averageA << "kg Average" << endl;
-cout << "Grade B: " << manyA << " deliveries" <<","<< totalB<< " total" <<","<< averageB << "kg Average" << endl;
+cout << "Grade B: " << manyB << " deliveries" <<","<< totalB<< " total" <<","<< averageB << "kg Average" << endl;
 cout << "Grade C: " << manyC << " deliveries" <<","<< totalC<< " total" <<","<< averageC << "kg Average" << endl;
 
 
@@ -238,46 +233,48 @@ cout << "Best average: grade " << bestGrade << endl;
 
     cout << "=== Q3 ===\n";
 
+   
 
-  
-
-
-
-   cout << "findFarmer(Isanda) = " << findFarmer(logbook, "Isanda") << endl;
+    cout << "findFarmer(Isanda) = " << findFarmer(logbook, "Isanda") << endl;
     cout << "findFarmer(Mukamana) = " << findFarmer(logbook, "Mukamana") << endl;
 
-    
-    map<string, int> deliveryCounts;
-    map<string, double> totalWeights;
+    string maxCountFarmer = "";
+    int maxCount = 0;
 
-    for (const auto &delivery : logbook) {
-        deliveryCounts[delivery.farmer]++;
-        totalWeights[delivery.farmer] += delivery.kg;
-    }
+    string maxWeightFarmer = "";
+    double maxWeight = 0.0;
 
-    
-    string mostDeliveriesFarmer = "";
-    int maxDeliveries = 0;
-    for (const auto &pair : deliveryCounts) {
-        if (pair.second > maxDeliveries) {
-            maxDeliveries = pair.second;
-            mostDeliveriesFarmer = pair.first;
+    for (int i = 0; i < 11; i++) {
+        string currentFarmer = logbook[i].farmer;
+
+        int currentCount = 0;
+        double currentTotalWeight = 0.0;
+
+
+        for (int j = 0; j < 11; j++) {
+            if (logbook[j].farmer == currentFarmer) {
+                currentCount = currentCount + 1;
+                currentTotalWeight = currentTotalWeight + logbook[j].kg;
+            }
+        }
+
+        if (currentCount > maxCount) {
+            maxCount = currentCount;
+            maxCountFarmer = currentFarmer;
+        }
+
+        if (currentTotalWeight > maxWeight) {
+            maxWeight = currentTotalWeight;
+            maxWeightFarmer = currentFarmer;
         }
     }
 
-    string mostKgFarmer = "";
-    double maxKg = 0.0;
-    for (const auto &pair : totalWeights) {
-        if (pair.second > maxKg) {
-            maxKg = pair.second;
-            mostKgFarmer = pair.first;
-        }
-    }
+    cout << "Most deliveries: " << maxCountFarmer << " (" << maxCount << ")" << endl;
+    cout << "Most kg: " << maxWeightFarmer << " (" << maxWeight << " kg)" << endl;
 
-    cout << "Most deliveries: " << mostDeliveriesFarmer << " (" << maxDeliveries << ")" << endl;
-    cout << "Most kg: " << mostKgFarmer << " (" << maxKg << " kg)" << endl;
     cout << "\n";
 
+  
 
     // =================================================================
     //  Q4  ·  PAYMENT RUN WITH A DAILY CAP  (see README)
@@ -287,7 +284,35 @@ cout << "Best average: grade " << bestGrade << endl;
     cout << "=== Q4 ===\n";
 
 
+    double totalPaidOut = 0.0;
 
+    for (int i = 0; i < 11; i++) {
+        string farmerName = logbook[i].farmer;
+        double weight = logbook[i].kg;
+        char grade = logbook[i].grade;
+
+        
+        double currentPayment = payment(weight, grade);
+
+        
+        bool isHalved = false;
+        if (totalPaidOut > 100000.0) {
+            currentPayment = currentPayment / 2.0;
+            isHalved = true;
+        }
+
+    
+        totalPaidOut = totalPaidOut + currentPayment;
+
+    
+        cout << farmerName << " " << weight << " kg grade " << grade << " -> " << currentPayment;
+        if (isHalved) {
+            cout << " (halved)";
+        }
+        cout << endl;
+    }
+
+    cout << "Total paid: " << totalPaidOut << endl;
 
 
     cout << "\n";
@@ -302,14 +327,83 @@ cout << "Best average: grade " << bestGrade << endl;
 
 
 
+    int acceptedCount = 0;
+    int rejectedCount = 0;
 
+    for (int i = 0; i < 8; i++) {
+        string id = rawRecords[i].id;
+        string kgStr = rawRecords[i].kg;
+        char grade = rawRecords[i].grade;
+
+        bool isValid = true;
+        string rejectReason = "";
+
+    
+        if (id.length() != 4 || id[0] != 'F') {
+            isValid = false;
+            rejectReason = "bad id";
+        } else {
+        
+            if (!isdigit(id[1]) || !isdigit(id[2]) || !isdigit(id[3])) {
+                isValid = false;
+                rejectReason = "bad id";
+            }
+        }
+
+  
+        if (isValid) {
+            if (kgStr == "") {
+                isValid = false;
+                rejectReason = "weight missing";
+            } else {
+            
+                bool isNumeric = true;
+                int dotCount = 0;
+                for (size_t j = 0; j < kgStr.length(); j++) {
+                    if (kgStr[j] == '.') {
+                        dotCount++;
+                    } else if (!isdigit(kgStr[j])) {
+                        isNumeric = false;
+                    }
+                }
+
+                if (!isNumeric || dotCount > 1) {
+                    isValid = false;
+                    rejectReason = "weight not a number";
+                } else {
+                    
+                    double weightVal = stod(kgStr);
+                    if (weightVal <= 0.0 || weightVal > 80.0) {
+                        isValid = false;
+                        rejectReason = "weight out of range";
+                    }
+                }
+            }
+        }
+
+      
+        if (isValid) {
+            char upperGrade = toupper(grade);
+            if (upperGrade != 'A' && upperGrade != 'B' && upperGrade != 'C') {
+                isValid = false;
+                rejectReason = "unknown grade";
+            }
+        }
+
+     
+        if (isValid) {
+            cout << id << " ACCEPT" << endl;
+            acceptedCount++;
+        } else {
+            cout << id << " REJECT - " << rejectReason << endl;
+            rejectedCount++;
+        }
+    }
+
+    cout << acceptedCount << " accepted, " << rejectedCount << " rejected" << endl;
 
     cout << "\n";
 
-    // =================================================================
-    //  Q6  ·  IGISORO: A FULL TURN          (see README)
-    //  Uses: board
-    // =================================================================
 
     cout << "=== Q6 ===\n";
 
@@ -346,6 +440,16 @@ cout << "Best average: grade " << bestGrade << endl;
 
 }
 
+int findFarmer(const vector<Delivery> &log, string name) {
+    for (int i = 0; i < 11; i++) {
+        if (log[i].farmer == name) {
+            return i; 
+        }
+    }
+    return -1; 
+}
+
+
 // =====================================================================
 //  FUNCTIONS YOU WRITE
 //
@@ -362,6 +466,24 @@ cout << "Best average: grade " << bestGrade << endl;
 //
 // }
 
+// The real code for the Q4 payment rule goes here at the bottom of the file
+double payment(double kg, char grade) {
+    double baseRate = 450.0;
+    double amount = kg * baseRate;
+
+    if (grade == 'A') {
+        amount = amount * 1.10; // 10% bonus
+    } 
+    else if (grade == 'B') {
+        // Stays standard rate
+    } 
+    else {
+        amount = amount * 0.80; // 20% penalty for anything else (like C)
+    }
+
+    return amount;
+}
+
 
 // Q4:  what one delivery earns, before any cap is applied.
 //      Grade A pays 10% above the rate, B pays the rate,
@@ -370,11 +492,3 @@ cout << "Best average: grade " << bestGrade << endl;
 // double payment(double kg, char grade) {
 //
 // }
-int findFarmer(const vector<Delivery> &log, string name) {
-    for (size_t i = 0; i < log.size(); ++i) {
-        if (log[i].farmer == name) {
-            return i;
-        }
-    }
-    return -1;
-}
