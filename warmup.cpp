@@ -414,21 +414,16 @@ cout << "Best average: grade " << bestGrade << endl;
     // =================================================================
 
 
-    int currentPit = 6;
-    int totalStepsMoved = 0;
+        int currentPit = 6;
+    int lapCount = 0;
 
     while (board[currentPit] > 0) {
         int seedsInHand = board[currentPit];
-        board[currentPit] = 0; 
+        board[currentPit] = 0;
+        lapCount++;
 
         while (seedsInHand > 0) {
-            currentPit = currentPit + 1;
-            totalStepsMoved = totalStepsMoved + 1;
-
-            if (currentPit > 16) {
-                currentPit = 1;
-            }
-
+            currentPit = (currentPit % 16) + 1;
             board[currentPit] = board[currentPit] + 1;
             seedsInHand = seedsInHand - 1;
         }
@@ -438,13 +433,12 @@ cout << "Best average: grade " << bestGrade << endl;
         }
     }
 
-    int lapCount = totalStepsMoved / 16;
-
     cout << "Final board: ";
     printBoard(board);
     cout << "Landed in pit " << currentPit << " after " << lapCount << " laps" << endl;
 
     cout << "\n";
+
 
 
     
